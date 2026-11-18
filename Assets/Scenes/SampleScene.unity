@@ -5791,6 +5791,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5916,6 +5917,19 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 464d32d17c13a0f4296244d39067533c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CamaraOrbital
+  velocidad: 10
 --- !u!1 &332775955
 GameObject:
   m_ObjectHideFlags: 0
@@ -21749,6 +21763,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
   velocidad: 1.5
+  cantidadPasos: 3
   controlSiembra: {fileID: 663646500}
 --- !u!1 &1391635969
 GameObject:
@@ -22959,7 +22974,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
   velocidad: 1.5
+  cantidadPasos: 3
   controlSiembra: {fileID: 663646500}
+--- !u!114 &1452386029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452386026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
+  duracion: 3
 --- !u!1 &1455315015
 GameObject:
   m_ObjectHideFlags: 0
@@ -28565,6 +28594,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1452386027}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452386029}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &1848584979
 GameObject:
@@ -29482,6 +29514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
   velocidad: 1.5
+  cantidadPasos: 3
   controlSiembra: {fileID: 663646500}
 --- !u!1 &1968462633
 GameObject:
