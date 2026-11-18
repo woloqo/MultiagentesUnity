@@ -11208,7 +11208,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1391045994}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &652838108
 GameObject:
@@ -21728,6 +21731,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1384753627}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1391045992 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 646531006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1391045994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1391045992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b01e59baa7f65764d8087280541e3fad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
+  velocidad: 1.5
+  controlSiembra: {fileID: 663646500}
 --- !u!1 &1391635969
 GameObject:
   m_ObjectHideFlags: 0
@@ -22919,6 +22941,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1442043652}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1452386026 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 1832601276}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1452386027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452386026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b01e59baa7f65764d8087280541e3fad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
+  velocidad: 1.5
+  controlSiembra: {fileID: 663646500}
 --- !u!1 &1455315015
 GameObject:
   m_ObjectHideFlags: 0
@@ -28520,7 +28561,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452386027}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &1848584979
 GameObject:
@@ -29015,7 +29059,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1948972626}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &1889269296
 GameObject:
@@ -29417,6 +29464,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1946210314}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1948972624 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 1876067091}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1948972626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948972624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b01e59baa7f65764d8087280541e3fad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoTractor
+  velocidad: 1.5
+  controlSiembra: {fileID: 663646500}
 --- !u!1 &1968462633
 GameObject:
   m_ObjectHideFlags: 0
