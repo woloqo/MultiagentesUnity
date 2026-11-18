@@ -1,0 +1,8 @@
+# Material gris low-poly
+newmtl PiedraGris
+Ka 0.25 0.26 0.27
+Kd 0.49 0.51 0.54
+Ks 0.04 0.04 0.04
+Ns 7.000
+d 1.0
+illum 2

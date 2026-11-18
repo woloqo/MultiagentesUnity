@@ -1,0 +1,10 @@
+ROCA LOW POLY PARA UNITY
+
+1. Extrae el ZIP.
+2. Copia Roca_LowPoly.obj y Roca_LowPoly.mtl en Assets/Modelos3D de tu proyecto Unity.
+3. Arrastra el modelo desde Project hasta Scene para revisarlo.
+4. Scale inicial 1,1,1. La geometria mide aproximadamente 1 unidad de ancho; su centro esta en Y=0.
+5. Para actualizar todos los obstaculos existentes, abre Assets/Prefabs/Obstaculo y cambia su apariencia; conserva el objeto principal, su transformacion y posiciones.
+6. Usa el material gris MaterialObstaculo si Unity no recupera el color del archivo MTL.
+
+Modelo 3D original generado para esta conversacion.
