@@ -19,19 +19,45 @@ public class EstadoTractores
 
 public class ComunicacionPython : MonoBehaviour
 {
+    private const int DimensionGrid = 15;
+
     public Transform tractor1;
     public Transform tractor2;
     public Transform tractor3;
 
     public float duracionMovimiento = 0.8f;
+    [Tooltip("Ajuste de rumbo si el frente del modelo no apunta a su eje local +Z.")]
+    public float ajusteRotacionY;
 
     private Vector3[] destinos = new Vector3[3];
     private bool[] inicializados = new bool[3];
     private Coroutine[] movimientos = new Coroutine[3];
 
+    void Awake()
+    {
+        // Evita que los controladores de prueba y la API escriban el Transform a la vez.
+        DesactivarMovimientoLocal(tractor1);
+        DesactivarMovimientoLocal(tractor2);
+        DesactivarMovimientoLocal(tractor3);
+    }
+
     void Start()
     {
         StartCoroutine(ActualizarPosiciones());
+    }
+
+    private static void DesactivarMovimientoLocal(Transform tractor)
+    {
+        if (tractor == null)
+            return;
+
+        MovimientoTractor movimientoRecto = tractor.GetComponent<MovimientoTractor>();
+        if (movimientoRecto != null)
+            movimientoRecto.enabled = false;
+
+        MovimientoCurvo movimientoDePrueba = tractor.GetComponent<MovimientoCurvo>();
+        if (movimientoDePrueba != null)
+            movimientoDePrueba.enabled = false;
     }
 
     IEnumerator ActualizarPosiciones()
@@ -66,6 +92,17 @@ public class ComunicacionPython : MonoBehaviour
 
             foreach (DatosTractor datos in estado.tractores)
             {
+                if (datos.id < 1 || datos.id > 3)
+                    continue;
+
+                if (datos.x < 0 || datos.x >= DimensionGrid
+                    || datos.z < 0 || datos.z >= DimensionGrid)
+                {
+                    Debug.LogWarning(
+                        $"Posición fuera del grid 15x15 para el tractor {datos.id}: ({datos.x}, {datos.z}).");
+                    continue;
+                }
+
                 Transform tractor = null;
 
                 if (datos.id == 1) tractor = tractor1;
@@ -125,6 +162,12 @@ public class ComunicacionPython : MonoBehaviour
     {
         Vector3 inicio = tractor.position;
         Vector3 direccion = destino - inicio;
+        Vector3 direccionHorizontal = new Vector3(direccion.x, 0f, direccion.z);
+        Quaternion rotacionInicial = tractor.rotation;
+        Quaternion rotacionDestino = Quaternion.LookRotation(
+            direccionHorizontal,
+            Vector3.up
+        ) * Quaternion.Euler(0f, ajusteRotacionY, 0f);
 
         Vector3 perpendicular = new Vector3(
             -direccion.z, 0, direccion.x
@@ -150,9 +193,16 @@ public class ComunicacionPython : MonoBehaviour
                 2f * (1f - t) * t * control +
                 Mathf.Pow(t, 2) * destino;
 
+            tractor.rotation = Quaternion.Slerp(
+                rotacionInicial,
+                rotacionDestino,
+                t
+            );
+
             yield return null;
         }
 
         tractor.position = destino;
+        tractor.rotation = rotacionDestino;
     }
 }
