@@ -26,8 +26,7 @@ public class ComunicacionPython : MonoBehaviour
     public Transform tractor3;
 
     public float duracionMovimiento = 0.8f;
-    [Tooltip("Ajuste de rumbo si el frente del modelo no apunta a su eje local +Z.")]
-    public float ajusteRotacionY;
+    public float ajusteRotacionY = 180f;
 
     private Vector3[] destinos = new Vector3[3];
     private bool[] inicializados = new bool[3];
@@ -35,7 +34,6 @@ public class ComunicacionPython : MonoBehaviour
 
     void Awake()
     {
-        // Evita que los controladores de prueba y la API escriban el Transform a la vez.
         DesactivarMovimientoLocal(tractor1);
         DesactivarMovimientoLocal(tractor2);
         DesactivarMovimientoLocal(tractor3);
@@ -51,13 +49,17 @@ public class ComunicacionPython : MonoBehaviour
         if (tractor == null)
             return;
 
-        MovimientoTractor movimientoRecto = tractor.GetComponent<MovimientoTractor>();
+        MovimientoTractor movimientoRecto =
+            tractor.GetComponent<MovimientoTractor>();
+
         if (movimientoRecto != null)
             movimientoRecto.enabled = false;
 
-        MovimientoCurvo movimientoDePrueba = tractor.GetComponent<MovimientoCurvo>();
-        if (movimientoDePrueba != null)
-            movimientoDePrueba.enabled = false;
+        MovimientoCurvo movimientoCurvo =
+            tractor.GetComponent<MovimientoCurvo>();
+
+        if (movimientoCurvo != null)
+            movimientoCurvo.enabled = false;
     }
 
     IEnumerator ActualizarPosiciones()
@@ -95,11 +97,12 @@ public class ComunicacionPython : MonoBehaviour
                 if (datos.id < 1 || datos.id > 3)
                     continue;
 
-                if (datos.x < 0 || datos.x >= DimensionGrid
-                    || datos.z < 0 || datos.z >= DimensionGrid)
+                if (datos.x < 0 || datos.x >= DimensionGrid ||
+                    datos.z < 0 || datos.z >= DimensionGrid)
                 {
                     Debug.LogWarning(
-                        $"Posición fuera del grid 15x15 para el tractor {datos.id}: ({datos.x}, {datos.z}).");
+                        $"Posicion fuera del terreno: tractor {datos.id}"
+                    );
                     continue;
                 }
 
@@ -133,16 +136,21 @@ public class ComunicacionPython : MonoBehaviour
                 if (cambio.sqrMagnitude < 0.001f)
                     continue;
 
-                if (Mathf.Abs(cambio.x) + Mathf.Abs(cambio.z) > 1.01f)
+                if (Mathf.Abs(cambio.x) +
+                    Mathf.Abs(cambio.z) > 1.01f)
                 {
-                    Debug.LogWarning("Enviar movimientos de una celda");
+                    Debug.LogWarning(
+                        "Enviar movimientos de una celda"
+                    );
                     continue;
                 }
 
                 if (GameObject.Find(
                     $"Obstaculo_{datos.z}_{datos.x}") != null)
                 {
-                    Debug.LogWarning("Destino ocupado por una roca");
+                    Debug.LogWarning(
+                        "Destino ocupado por una roca"
+                    );
                     continue;
                 }
 
@@ -162,19 +170,28 @@ public class ComunicacionPython : MonoBehaviour
     {
         Vector3 inicio = tractor.position;
         Vector3 direccion = destino - inicio;
-        Vector3 direccionHorizontal = new Vector3(direccion.x, 0f, direccion.z);
-        Quaternion rotacionInicial = tractor.rotation;
-        Quaternion rotacionDestino = Quaternion.LookRotation(
-            direccionHorizontal,
-            Vector3.up
-        ) * Quaternion.Euler(0f, ajusteRotacionY, 0f);
 
         Vector3 perpendicular = new Vector3(
-            -direccion.z, 0, direccion.x
+            -direccion.z, 0f, direccion.x
         ).normalized;
 
-        Vector3 control = (inicio + destino) / 2f
-                          + perpendicular * 0.15f;
+        Vector3 control =
+            (inicio + destino) / 2f +
+            perpendicular * 0.15f;
+
+        Quaternion rotacionInicial = tractor.rotation;
+        Quaternion rotacionFinal = rotacionInicial;
+
+        Vector3 rumbo = new Vector3(
+            direccion.x, 0f, direccion.z
+        );
+
+        if (rumbo.sqrMagnitude > 0.0001f)
+        {
+            rotacionFinal =
+                Quaternion.LookRotation(rumbo) *
+                Quaternion.Euler(0f, ajusteRotacionY, 0f);
+        }
 
         float tiempo = 0f;
 
@@ -188,14 +205,16 @@ public class ComunicacionPython : MonoBehaviour
 
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            tractor.position =
+            Vector3 posicion =
                 Mathf.Pow(1f - t, 2) * inicio +
                 2f * (1f - t) * t * control +
                 Mathf.Pow(t, 2) * destino;
 
+            tractor.position = posicion;
+
             tractor.rotation = Quaternion.Slerp(
                 rotacionInicial,
-                rotacionDestino,
+                rotacionFinal,
                 t
             );
 
@@ -203,6 +222,6 @@ public class ComunicacionPython : MonoBehaviour
         }
 
         tractor.position = destino;
-        tractor.rotation = rotacionDestino;
+        tractor.rotation = rotacionFinal;
     }
 }
