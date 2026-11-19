@@ -4872,6 +4872,53 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 257611321}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &257860280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 257860282}
+  - component: {fileID: 257860281}
+  m_Layer: 0
+  m_Name: ConexionPython
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &257860281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257860280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e507382b55cffa49a692afa417cc307, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComunicacionPython
+  tractor1: {fileID: 1452386030}
+  tractor2: {fileID: 1391045995}
+  tractor3: {fileID: 1948972627}
+--- !u!4 &257860282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257860280}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.91387, y: 0.05, z: 5.52779}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &260877929
 GameObject:
   m_ObjectHideFlags: 0
@@ -11226,6 +11273,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1391045994}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1391045996}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &652838108
 GameObject:
@@ -21765,6 +21815,24 @@ MonoBehaviour:
   velocidad: 1.5
   cantidadPasos: 3
   controlSiembra: {fileID: 663646500}
+--- !u!4 &1391045995 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 646531006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1391045996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1391045992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
+  duracion: 3
 --- !u!1 &1391635969
 GameObject:
   m_ObjectHideFlags: 0
@@ -22989,6 +23057,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
   duracion: 3
+--- !u!4 &1452386030 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 1832601276}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1455315015
 GameObject:
   m_ObjectHideFlags: 0
@@ -29095,6 +29168,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1948972626}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1948972628}
   m_SourcePrefab: {fileID: 100100000, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
 --- !u!1 &1889269296
 GameObject:
@@ -29516,6 +29592,24 @@ MonoBehaviour:
   velocidad: 1.5
   cantidadPasos: 3
   controlSiembra: {fileID: 663646500}
+--- !u!4 &1948972627 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
+  m_PrefabInstance: {fileID: 1876067091}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1948972628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948972624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
+  duracion: 3
 --- !u!1 &1968462633
 GameObject:
   m_ObjectHideFlags: 0
@@ -32403,3 +32497,4 @@ SceneRoots:
   - {fileID: 349724766}
   - {fileID: 76476568}
   - {fileID: 501164250}
+  - {fileID: 257860282}
