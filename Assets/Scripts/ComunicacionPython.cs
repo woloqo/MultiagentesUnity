@@ -32,13 +32,6 @@ public class ComunicacionPython : MonoBehaviour
     private bool[] inicializados = new bool[3];
     private Coroutine[] movimientos = new Coroutine[3];
 
-    void Awake()
-    {
-        DesactivarMovimientoLocal(tractor1);
-        DesactivarMovimientoLocal(tractor2);
-        DesactivarMovimientoLocal(tractor3);
-    }
-
     void Start()
     {
         StartCoroutine(ActualizarPosiciones());

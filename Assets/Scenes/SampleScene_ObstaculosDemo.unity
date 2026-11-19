@@ -91976,6 +91976,7 @@ MonoBehaviour:
   tractor2: {fileID: 1391045995}
   tractor3: {fileID: 1948972627}
   duracionMovimiento: 0.8
+  ajusteRotacionY: 180
 --- !u!4 &257860282
 Transform:
   m_ObjectHideFlags: 0
@@ -93176,8 +93177,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.23881571, y: -0.6581135, z: 0.23303278, w: 0.67494404}
-  m_LocalPosition: {x: 17.282799, y: 5.5212884, z: 6.455944}
+  m_LocalRotation: {x: -0.21478684, y: 0.6467666, z: -0.19709824, w: -0.7047779}
+  m_LocalPosition: {x: 18.900377, y: 8.934121, z: 5.163803}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -450551,7 +450552,7 @@ Transform:
   m_GameObject: {fileID: 905788309}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.45, y: -0.11, z: 0}
+  m_LocalPosition: {x: 0.62, y: -0.11, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -545046,7 +545047,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
-  duracion: 3
+  duracionGiro: 1
+  duracionMovimiento: 3
 --- !u!1 &1391635969
 GameObject:
   m_ObjectHideFlags: 0
@@ -546464,7 +546466,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
-  duracion: 3
+  duracionGiro: 1
+  duracionMovimiento: 3
 --- !u!4 &1452386030 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0ec63a3b0477c7a408b54b34c05021ee, type: 3}
@@ -727377,7 +727380,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c710e0d82972166498ebf35aefd5f320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoCurvo
-  duracion: 3
+  duracionGiro: 1
+  duracionMovimiento: 3
 --- !u!1001 &1954830449
 PrefabInstance:
   m_ObjectHideFlags: 0
