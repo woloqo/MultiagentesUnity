@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CamaraOrbital : MonoBehaviour
 {
-    public float velocidad = 10f;
+    public float velocidad = 4.5f;
 
-    private Vector3 centro = new Vector3(7, 0, 7);
+    private Vector3 centro = new Vector3(8f, 0f, 9.5f);
 
     void Start()
     {
