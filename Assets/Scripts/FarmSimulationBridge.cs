@@ -50,9 +50,17 @@ public class FarmMetricsData
 }
 
 [Serializable]
+public class FarmScenarioData
+{
+    public string architecture;
+    public bool q_learning;
+}
+
+[Serializable]
 public class FarmSnapshotData
 {
     public int schema_version;
+    public FarmScenarioData scenario;
     public int tick;
     public bool complete;
     public bool finished;
@@ -371,7 +379,7 @@ public class FarmSimulationBridge : MonoBehaviour
         var label = new GUIStyle(GUI.skin.label) { fontSize = 16 };
         var button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
         int count = current != null && current.tractors != null ? current.tractors.Length : 0;
-        GUI.Box(new Rect(12, 12, 430, 116 + count * 25), "Simulación Python", title);
+        GUI.Box(new Rect(12, 12, 430, 141 + count * 25), "Simulación Python", title);
         GUI.Label(new Rect(24, 40, 405, 25), connectionMessage, label);
         if (current == null)
         {
@@ -381,17 +389,19 @@ public class FarmSimulationBridge : MonoBehaviour
 
         string coverage = current.metrics != null ? current.metrics.coverage_pct.ToString("F1") + "%" : "—";
         GUI.Label(new Rect(24, 65, 405, 25), "Tick " + current.tick + " · sembrado " + coverage, label);
+        string learning = current.scenario == null ? "no informado" : (current.scenario.q_learning ? "activado" : "desactivado");
+        GUI.Label(new Rect(24, 90, 405, 25), "Q-learning: " + learning + " · Navegación: A*", label);
         if (current.tractors != null)
         {
             for (int i = 0; i < current.tractors.Length; i++)
             {
                 FarmTractorData tractor = current.tractors[i];
-                GUI.Label(new Rect(24, 90 + i * 25, 405, 25),
+                GUI.Label(new Rect(24, 115 + i * 25, 405, 25),
                     "T" + tractor.id + " · " + tractor.mode + " · semillas " + tractor.seeds.ToString("F0") + " · combustible " + tractor.fuel.ToString("F0"), label);
             }
         }
 
-        float buttonY = 95 + count * 25;
+        float buttonY = 120 + count * 25;
         if (GUI.Button(new Rect(24, buttonY, 175, 30), autoAdvance ? "Pausar" : "Autoavanzar", button))
             autoAdvance = !autoAdvance;
         if (GUI.Button(new Rect(209, buttonY, 175, 30), "Siguiente tick", button) && !autoAdvance)
