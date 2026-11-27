@@ -4,6 +4,6 @@ Abre `Assets/Scenes/SampleScene.unity` en Unity. El objeto `ConexionPython` cont
 
 Inicia el servidor desde el repositorio de tractores siguiendo `UNITY_INTEGRATION.md`, y pulsa Play. El panel izquierdo muestra el avance y los recursos; los botones de la derecha eligen la vista orbital, la panorámica o el seguimiento de cada tractor. La siembra, los obstáculos y las estaciones siguen el estado recibido del modelo.
 
-La implementación de Q-learning se desarrolla en paralelo y aún no está incluida en la versión publicada del modelo Python. Una vez integrada, el servidor admite una política entrenada mediante `--q-policies`.
+Para activar Q-learning, inicia el servidor Python con la política de demostración incluida en su repositorio, como se indica en `UNITY_INTEGRATION.md`. El panel de Unity indica si Q-learning está activado y muestra A* como método de navegación. Sin la opción de política, se usa la estrategia improved original.
 
 La escena utiliza paquetes gratuitos de terceros que cada colaborador debe importar por separado. Consulta `ASSET_STORE_DEPENDENCIES.md` para instalar los modelos de árboles, animales y cielo y conservar sus GUID. Los obstáculos adicionales se generan en tiempo de ejecución con geometría propia.
