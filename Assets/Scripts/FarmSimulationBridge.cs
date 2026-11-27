@@ -53,7 +53,29 @@ public class FarmMetricsData
 public class FarmScenarioData
 {
     public string architecture;
+    public float density;
+    public string start_mode;
+    // Legacy/compatibility aliases emitted by the Python bridge.
+    public float obstacle_density;
+    public int seed;
+    public string initial_positions;
     public bool q_learning;
+}
+
+[Serializable]
+public class FarmResetRequestData
+{
+    public float density;
+    public int seed;
+    public string start_mode;
+    public bool q_learning;
+    public string architecture;
+}
+
+[Serializable]
+public class FarmErrorData
+{
+    public string error;
 }
 
 [Serializable]
@@ -94,9 +116,30 @@ public class FarmSimulationBridge : MonoBehaviour
     private bool firstSnapshot = true;
     private bool fieldSynchronized;
     private bool requestNextTick;
-    private string connectionMessage = "Conectando con Python...";
+    private bool requestFailed;
+    private bool requestInProgress;
+    private Coroutine sessionCoroutine;
+    private FarmResetRequestData pendingReset;
+    private bool externalUiActive;
+    private string connectionMessage = "Elige una opción para consultar el episodio activo de Python.";
+    private float requestedDensity = 0.10f;
+    private string requestedSeed = "0";
+    private int requestedStartMode;
+    private int requestedArchitecture;
+    private bool requestedQLearning;
     private GeneradorObstaculos obstacleGenerator;
     private ControlSiembra sowingController;
+
+    public FarmSnapshotData CurrentSnapshot => current;
+    public string StatusMessage => connectionMessage;
+    public bool IsAutoAdvancing => autoAdvance;
+    public bool IsFinished => current != null && current.finished;
+    public float TicksPerSecond => 1f / Mathf.Max(0.05f, secondsPerTick);
+
+    public void SetExternalUIActive(bool active)
+    {
+        externalUiActive = active;
+    }
 
     private void Awake()
     {
@@ -122,53 +165,241 @@ public class FarmSimulationBridge : MonoBehaviour
         DesactivarMovimientoLocal(tractor3);
     }
 
-    private void Start()
+    public void ConnectToCurrentEpisode(bool startAutomatically)
     {
-        StartCoroutine(ConsumirSimulacion());
+        if (sessionCoroutine != null)
+            return;
+
+        autoAdvance = startAutomatically;
+        requestNextTick = false;
+        connectionMessage = "Consultando el episodio activo de Python...";
+        sessionCoroutine = StartCoroutine(ConsumirSimulacion());
+    }
+
+    public void StartConfiguredEpisode(float density, int seed, string startMode, bool qLearning, string architecture, bool startAutomatically)
+    {
+        if (density < 0f || density >= 0.5f)
+        {
+            connectionMessage = "La densidad debe estar entre 0 y menos de 0.50.";
+            return;
+        }
+        if (startMode != "fixed" && startMode != "random")
+        {
+            connectionMessage = "start_mode debe ser fixed o random.";
+            return;
+        }
+        if (architecture != "improved" && architecture != "baseline")
+        {
+            connectionMessage = "architecture debe ser improved o baseline.";
+            return;
+        }
+        if (qLearning && architecture != "improved")
+        {
+            connectionMessage = "Q-learning solo está disponible con improved.";
+            return;
+        }
+
+        FarmResetRequestData reset = new FarmResetRequestData
+        {
+            density = density,
+            seed = seed,
+            start_mode = startMode,
+            q_learning = qLearning,
+            architecture = architecture
+        };
+
+        autoAdvance = startAutomatically;
+        requestNextTick = false;
+        if (sessionCoroutine != null)
+        {
+            if (requestInProgress)
+            {
+                // Let the current HTTP request finish before replacing its episode.
+                pendingReset = reset;
+                connectionMessage = "Reinicio solicitado; esperando la petición actual...";
+                return;
+            }
+
+            // The playback coroutine may be waiting for its next visual tick.
+            StopCoroutine(sessionCoroutine);
+            sessionCoroutine = null;
+        }
+
+        pendingReset = null;
+        connectionMessage = "Iniciando episodio en Python...";
+        sessionCoroutine = StartCoroutine(ResetearYConsumir(reset));
+    }
+
+    public void PausePlayback()
+    {
+        autoAdvance = false;
+        requestNextTick = false;
+    }
+
+    public void ResumePlayback()
+    {
+        if (current != null && !current.finished)
+            autoAdvance = true;
+    }
+
+    public void RequestSingleTick()
+    {
+        if (current != null && !current.finished && !autoAdvance)
+            requestNextTick = true;
+    }
+
+    public void SetTicksPerSecond(float ticksPerSecond)
+    {
+        float clamped = Mathf.Clamp(ticksPerSecond, 0.25f, 5f);
+        secondsPerTick = 1f / clamped;
     }
 
     private IEnumerator ConsumirSimulacion()
     {
         yield return StartCoroutine(Consultar("GET", "/state"));
+        if (requestFailed || current == null)
+        {
+            if (TryTakePendingReset(out FarmResetRequestData failedReadReset))
+            {
+                requestFailed = false;
+                yield return StartCoroutine(ResetearYConsumir(failedReadReset));
+                yield break;
+            }
+
+            sessionCoroutine = null;
+            yield break;
+        }
+
+        if (TryTakePendingReset(out FarmResetRequestData pendingReadReset))
+        {
+            yield return StartCoroutine(ResetearYConsumir(pendingReadReset));
+            yield break;
+        }
+
+        yield return StartCoroutine(AvanzarHastaFin());
+    }
+
+    private IEnumerator ResetearYConsumir(FarmResetRequestData reset)
+    {
+        current = null;
+        firstSnapshot = true;
+        fieldSynchronized = false;
+        requestNextTick = false;
+        string body = JsonUtility.ToJson(reset);
+        yield return StartCoroutine(Consultar("POST", "/reset", body));
+        if (requestFailed || current == null)
+        {
+            pendingReset = null;
+            sessionCoroutine = null;
+            yield break;
+        }
+
+        if (TryTakePendingReset(out FarmResetRequestData pendingPostReset))
+        {
+            yield return StartCoroutine(ResetearYConsumir(pendingPostReset));
+            yield break;
+        }
+
+        // The reset response already contains tick 0; this read confirms that state
+        // retrieval itself is non-advancing before the first POST /step.
+        yield return StartCoroutine(Consultar("GET", "/state"));
+        if (requestFailed)
+        {
+            pendingReset = null;
+            sessionCoroutine = null;
+            yield break;
+        }
+
+        if (TryTakePendingReset(out FarmResetRequestData pendingStateReset))
+        {
+            yield return StartCoroutine(ResetearYConsumir(pendingStateReset));
+            yield break;
+        }
+
+        yield return StartCoroutine(AvanzarHastaFin());
+    }
+
+    private IEnumerator AvanzarHastaFin()
+    {
         while (current != null && !current.finished)
         {
+            if (TryTakePendingReset(out FarmResetRequestData pendingStepReset))
+            {
+                yield return StartCoroutine(ResetearYConsumir(pendingStepReset));
+                yield break;
+            }
+
             if (autoAdvance)
             {
                 yield return new WaitForSeconds(Mathf.Max(0.05f, secondsPerTick));
             }
             else
             {
-                while (!requestNextTick)
+                while (!requestNextTick && pendingReset == null)
                     yield return null;
+                if (pendingReset != null)
+                    continue;
                 requestNextTick = false;
             }
 
             if (current != null && !current.finished)
-                yield return StartCoroutine(Consultar("POST", "/step"));
+            {
+                yield return StartCoroutine(Consultar("POST", "/step", "{}"));
+                if (requestFailed)
+                    break;
+            }
+        }
+
+        if (TryTakePendingReset(out FarmResetRequestData pendingFinishReset))
+        {
+            yield return StartCoroutine(ResetearYConsumir(pendingFinishReset));
+            yield break;
         }
 
         if (current != null && current.finished)
             connectionMessage = current.complete
                 ? "Simulación completada en tick " + current.tick
                 : "Límite de ticks alcanzado en " + current.tick;
+
+        sessionCoroutine = null;
     }
 
-    private IEnumerator Consultar(string method, string route)
+    private bool TryTakePendingReset(out FarmResetRequestData reset)
     {
+        reset = pendingReset;
+        pendingReset = null;
+        return reset != null;
+    }
+
+    private IEnumerator Consultar(string method, string route, string jsonBody = null)
+    {
+        requestFailed = false;
         string url = serverUrl.TrimEnd('/') + route;
         using (UnityWebRequest request = new UnityWebRequest(url, method))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
             if (method == "POST")
             {
-                request.uploadHandler = new UploadHandlerRaw(new byte[0]);
+                byte[] body = System.Text.Encoding.UTF8.GetBytes(jsonBody ?? "{}");
+                request.uploadHandler = new UploadHandlerRaw(body);
                 request.SetRequestHeader("Content-Type", "application/json");
             }
 
+            requestInProgress = true;
             yield return request.SendWebRequest();
+            requestInProgress = false;
             if (request.result != UnityWebRequest.Result.Success)
             {
-                connectionMessage = "Error Python: " + request.error;
+                string details = request.downloadHandler != null ? request.downloadHandler.text : "";
+                FarmErrorData apiError = null;
+                if (!string.IsNullOrEmpty(details))
+                {
+                    try { apiError = JsonUtility.FromJson<FarmErrorData>(details); }
+                    catch (Exception) { }
+                }
+                connectionMessage = "Error Python: " +
+                    (apiError != null && !string.IsNullOrEmpty(apiError.error) ? apiError.error : request.error);
+                requestFailed = true;
                 Debug.LogError(connectionMessage + " (" + url + ")");
                 yield break;
             }
@@ -181,6 +412,7 @@ public class FarmSimulationBridge : MonoBehaviour
             catch (Exception exception)
             {
                 connectionMessage = "JSON inválido: " + exception.Message;
+                requestFailed = true;
                 Debug.LogError(connectionMessage);
                 yield break;
             }
@@ -188,6 +420,7 @@ public class FarmSimulationBridge : MonoBehaviour
             if (snapshot == null || snapshot.field == null || snapshot.tractors == null)
             {
                 connectionMessage = "Snapshot incompleto recibido desde Python.";
+                requestFailed = true;
                 Debug.LogError(connectionMessage);
                 yield break;
             }
@@ -372,40 +605,119 @@ public class FarmSimulationBridge : MonoBehaviour
 
     private void OnGUI()
     {
-        Matrix4x4 previousMatrix = GUI.matrix;
-        float scale = Mathf.Clamp(Mathf.Min(Screen.width / 1280f, Screen.height / 720f), 1f, 2.5f);
-        GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-        var title = new GUIStyle(GUI.skin.box) { fontSize = 17, fontStyle = FontStyle.Bold };
-        var label = new GUIStyle(GUI.skin.label) { fontSize = 16 };
-        var button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
-        int count = current != null && current.tractors != null ? current.tractors.Length : 0;
-        GUI.Box(new Rect(12, 12, 430, 141 + count * 25), "Simulación Python", title);
-        GUI.Label(new Rect(24, 40, 405, 25), connectionMessage, label);
-        if (current == null)
-        {
-            GUI.matrix = previousMatrix;
+        if (externalUiActive)
             return;
+
+        if (current == null)
+            DibujarConfiguracion();
+        else
+            DibujarEstado();
+    }
+
+    private void DibujarConfiguracion()
+    {
+        const float x = 12f;
+        const float y = 12f;
+        const float width = 370f;
+        GUI.Box(new Rect(x, y, width, 386f), "Configurar episodio Python");
+        GUI.Label(new Rect(x + 16f, y + 32f, width - 32f, 22f),
+            "Densidad de obstáculos: " + requestedDensity.ToString("F2"));
+        requestedDensity = GUI.HorizontalSlider(
+            new Rect(x + 16f, y + 58f, width - 32f, 20f), requestedDensity, 0f, 0.49f);
+
+        GUI.Label(new Rect(x + 16f, y + 86f, 118f, 24f), "Semilla:");
+        requestedSeed = GUI.TextField(new Rect(x + 136f, y + 84f, 90f, 26f), requestedSeed);
+
+        GUI.Label(new Rect(x + 16f, y + 119f, 140f, 22f), "Posiciones iniciales:");
+        requestedStartMode = GUI.SelectionGrid(
+            new Rect(x + 16f, y + 143f, width - 32f, 30f), requestedStartMode,
+            new[] { "Fijas", "Aleatorias" }, 2);
+
+        GUI.Label(new Rect(x + 16f, y + 181f, 140f, 22f), "Arquitectura:");
+        requestedArchitecture = GUI.SelectionGrid(
+            new Rect(x + 16f, y + 205f, width - 32f, 30f), requestedArchitecture,
+            new[] { "Improved", "Baseline" }, 2);
+        if (requestedArchitecture == 1)
+            requestedQLearning = false;
+        GUI.enabled = requestedArchitecture == 0;
+        requestedQLearning = GUI.Toggle(new Rect(x + 16f, y + 242f, width - 32f, 24f),
+            requestedQLearning, "Evaluar Q-learning (requiere política cargada)");
+        GUI.enabled = true;
+
+        GUI.Label(new Rect(x + 16f, y + 273f, width - 32f, 38f), connectionMessage);
+        bool seedValid = int.TryParse(requestedSeed, out int seed);
+        GUI.enabled = sessionCoroutine == null && seedValid;
+        if (GUI.Button(new Rect(x + 16f, y + 325f, width - 32f, 36f), "Iniciar simulación"))
+        {
+            StartConfiguredEpisode(requestedDensity, seed,
+                requestedStartMode == 0 ? "fixed" : "random",
+                requestedQLearning,
+                requestedArchitecture == 0 ? "improved" : "baseline",
+                true);
+        }
+        GUI.enabled = true;
+    }
+
+    private void DibujarEstado()
+    {
+        const float x = 12f;
+        const float y = 12f;
+        const float width = 350f;
+        float height = 170f + (current.tractors != null ? current.tractors.Length * 20f : 0f);
+        GUI.Box(new Rect(x, y, width, height), "Episodio multiagente");
+        GUI.Label(new Rect(x + 14f, y + 28f, width - 28f, 22f), connectionMessage);
+
+        string scenarioText = "";
+        if (current.scenario != null)
+        {
+            float density = current.scenario.density > 0f
+                ? current.scenario.density : current.scenario.obstacle_density;
+            string starts = !string.IsNullOrEmpty(current.scenario.start_mode)
+                ? current.scenario.start_mode : current.scenario.initial_positions;
+            scenarioText = " · " + current.scenario.architecture + " · " + density.ToString("P0") +
+                " · seed " + current.scenario.seed + " · " + starts;
         }
 
-        string coverage = current.metrics != null ? current.metrics.coverage_pct.ToString("F1") + "%" : "—";
-        GUI.Label(new Rect(24, 65, 405, 25), "Tick " + current.tick + " · sembrado " + coverage, label);
-        string learning = current.scenario == null ? "no informado" : (current.scenario.q_learning ? "activado" : "desactivado");
-        GUI.Label(new Rect(24, 90, 405, 25), "Q-learning: " + learning + " · Navegación: A*", label);
+        string coverage = current.metrics != null
+            ? current.metrics.coverage_pct.ToString("F1") + "%" : "—";
+        GUI.Label(new Rect(x + 14f, y + 50f, width - 28f, 22f),
+            "Tick " + current.tick + " · sembrado " + coverage + scenarioText);
+
         if (current.tractors != null)
         {
             for (int i = 0; i < current.tractors.Length; i++)
             {
                 FarmTractorData tractor = current.tractors[i];
-                GUI.Label(new Rect(24, 115 + i * 25, 405, 25),
-                    "T" + tractor.id + " · " + tractor.mode + " · semillas " + tractor.seeds.ToString("F0") + " · combustible " + tractor.fuel.ToString("F0"), label);
+                GUI.Label(new Rect(x + 14f, y + 74f + i * 20f, width - 28f, 22f),
+                    "T" + tractor.id + " · " + tractor.mode + " · semillas " + tractor.seeds.ToString("F0") +
+                    " · combustible " + tractor.fuel.ToString("F0"));
             }
         }
 
-        float buttonY = 120 + count * 25;
-        if (GUI.Button(new Rect(24, buttonY, 175, 30), autoAdvance ? "Pausar" : "Autoavanzar", button))
-            autoAdvance = !autoAdvance;
-        if (GUI.Button(new Rect(209, buttonY, 175, 30), "Siguiente tick", button) && !autoAdvance)
-            requestNextTick = true;
-        GUI.matrix = previousMatrix;
+        float controlsY = y + 80f + (current.tractors != null ? current.tractors.Length * 20f : 0f);
+        if (!current.finished)
+        {
+            if (autoAdvance)
+            {
+                if (GUI.Button(new Rect(x + 14f, controlsY, 145f, 28f), "Pausar"))
+                    PausePlayback();
+            }
+            else
+            {
+                if (GUI.Button(new Rect(x + 14f, controlsY, 105f, 28f), "Continuar"))
+                    ResumePlayback();
+                if (GUI.Button(new Rect(x + 126f, controlsY, 145f, 28f), "Siguiente tick"))
+                    RequestSingleTick();
+            }
+        }
+        else if (GUI.Button(new Rect(x + 14f, controlsY, width - 28f, 28f), "Nuevo episodio"))
+        {
+            current = null;
+            firstSnapshot = true;
+            fieldSynchronized = false;
+            requestFailed = false;
+            connectionMessage = "Configura el siguiente episodio.";
+        }
     }
+
 }
