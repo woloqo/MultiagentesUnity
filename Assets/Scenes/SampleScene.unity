@@ -12625,6 +12625,7 @@ GameObject:
   m_Component:
   - component: {fileID: 257860282}
   - component: {fileID: 257860281}
+  - component: {fileID: 257860283}
   m_Layer: 0
   m_Name: ConexionPython
   m_TagString: Untagged
@@ -12664,6 +12665,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &257860283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257860280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a93782b456bc4ea48ad1a09d3f40692f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FarmSimulationBridge
+  serverUrl: http://127.0.0.1:8000
+  secondsPerTick: 0.5
+  autoAdvance: 1
+  tractor1: {fileID: 0}
+  tractor2: {fileID: 0}
+  tractor3: {fileID: 0}
+  obstaclePrefab: {fileID: 0}
+  plantedMaterial: {fileID: 0}
+  headingOffsetY: -90
 --- !u!1 &258132761
 GameObject:
   m_ObjectHideFlags: 0
@@ -16139,6 +16161,7 @@ GameObject:
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
+  - component: {fileID: 330585549}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -16277,6 +16300,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CamaraOrbital
   velocidad: 4.5
+--- !u!114 &330585549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1d86e8c0b621b24491d23e622510073, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FarmCameraViews
+  fieldCenter: {x: 7, y: 0, z: 7}
+  overheadHeight: 24
+  overheadSize: 9
+  cabOffset: {x: -2.5, y: 1.5, z: 0}
+  cabFieldOfView: 60
+  orbitalFieldOfView: 43
 --- !u!1 &332775955
 GameObject:
   m_ObjectHideFlags: 0
