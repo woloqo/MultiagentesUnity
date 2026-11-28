@@ -18,6 +18,7 @@ public class FarmCameraViews : MonoBehaviour
     private Vector3 orbitalPosition;
     private Quaternion orbitalRotation;
     private float orbitalFov;
+    private bool mostrarVistas = true;
 
     private void Awake()
     {
@@ -65,20 +66,36 @@ public class FarmCameraViews : MonoBehaviour
     private void OnGUI()
     {
         Matrix4x4 previousMatrix = GUI.matrix;
-        float scale = Mathf.Clamp(Mathf.Min(Screen.width / 1280f, Screen.height / 720f), 1f, 2.5f);
+        float scale = Mathf.Clamp(Mathf.Min(Screen.width / 1280f, Screen.height / 720f), 0.7f, 1f);
         GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-        const float width = 210f;
-        float x = Mathf.Max(0f, Screen.width / scale - width - 12f);
-        var title = new GUIStyle(GUI.skin.box) { fontSize = 17, fontStyle = FontStyle.Bold };
-        var button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
-        var label = new GUIStyle(GUI.skin.label) { fontSize = 16 };
-        GUI.Box(new Rect(x, 12f, width, 198f), "Vista de cámara", title);
-        if (GUI.Button(new Rect(x + 10f, 42f, 190f, 30f), "Orbital", button)) Select(View.Orbital);
-        if (GUI.Button(new Rect(x + 10f, 77f, 190f, 30f), "Panorámica", button)) Select(View.Panoramica);
-        if (GUI.Button(new Rect(x + 10f, 112f, 60f, 30f), "T1", button)) Select(View.Tractor1);
-        if (GUI.Button(new Rect(x + 75f, 112f, 60f, 30f), "T2", button)) Select(View.Tractor2);
-        if (GUI.Button(new Rect(x + 140f, 112f, 60f, 30f), "T3", button)) Select(View.Tractor3);
-        GUI.Label(new Rect(x + 10f, 155f, 190f, 30f), "Actual: " + view, label);
+        const float width = 190f;
+        float x = Mathf.Max(8f, Screen.width / scale - width - 12f);
+
+        var title = new GUIStyle(GUI.skin.box) { fontSize = 15, fontStyle = FontStyle.Bold };
+        var button = new GUIStyle(GUI.skin.button) { fontSize = 14 };
+        var label = new GUIStyle(GUI.skin.label) { fontSize = 13 };
+
+        if (!mostrarVistas)
+        {
+            if (GUI.Button(new Rect(x, 12f, width, 32f), "Mostrar vistas", button))
+                mostrarVistas = true;
+        }
+        else
+        {
+            GUI.Box(new Rect(x, 12f, width, 190f), "Cámaras", title);
+
+            if (GUI.Button(new Rect(x + 156f, 16f, 25f, 24f), "X", button))
+                mostrarVistas = false;
+
+            if (GUI.Button(new Rect(x + 10f, 45f, 170f, 28f), "Orbital", button)) Select(View.Orbital);
+            if (GUI.Button(new Rect(x + 10f, 78f, 170f, 28f), "Panorámica", button)) Select(View.Panoramica);
+            if (GUI.Button(new Rect(x + 10f, 111f, 53f, 28f), "T1", button)) Select(View.Tractor1);
+            if (GUI.Button(new Rect(x + 68f, 111f, 53f, 28f), "T2", button)) Select(View.Tractor2);
+            if (GUI.Button(new Rect(x + 126f, 111f, 53f, 28f), "T3", button)) Select(View.Tractor3);
+
+            GUI.Label(new Rect(x + 10f, 152f, 170f, 25f), "Actual: " + view, label);
+        }
+
         GUI.matrix = previousMatrix;
     }
 }

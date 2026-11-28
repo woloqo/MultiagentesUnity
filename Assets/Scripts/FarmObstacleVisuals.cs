@@ -21,6 +21,58 @@ public static class FarmObstacleVisuals
         return item;
     }
 
+    private static bool CreateScannedRock(Transform parent, GameObject rockPrefab)
+    {
+        if (rockPrefab == null)
+            return false;
+
+        var rock = Object.Instantiate(rockPrefab, parent, false);
+        rock.transform.localPosition = Vector3.zero;
+        rock.transform.localRotation = Quaternion.identity;
+
+        // The scanned rock is decorative and does not affect tractor navigation.
+        Collider[] colliders = rock.GetComponentsInChildren<Collider>(true);
+        foreach (Collider collider in colliders)
+            Object.Destroy(collider);
+
+        // Find the visible size of the imported model.
+        Renderer[] renderers = rock.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            Object.Destroy(rock);
+            return false;
+        }
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        // Fit the scanned rock inside its Python grid cell.
+        float horizontalSize = Mathf.Max(bounds.size.x, bounds.size.z);
+        float height = bounds.size.y;
+
+        float scale = Mathf.Min(
+            0.68f / Mathf.Max(horizontalSize, 0.0001f),
+            0.55f / Mathf.Max(height, 0.0001f));
+
+        rock.transform.localScale *= scale;
+
+        // Recalculate bounds after scaling.
+        bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        // Center the rock and place its bottom on the ground.
+        Vector3 correction = new Vector3(
+            parent.position.x - bounds.center.x,
+            parent.position.y + 0.02f - bounds.min.y,
+            parent.position.z - bounds.center.z);
+
+        rock.transform.position += correction;
+
+        return true;
+    }
+
     public static void CreateObstacle(int row, int col, GameObject rockPrefab, Transform parent)
     {
         var root = new GameObject($"ObstacleVisual_{row}_{col}");
@@ -31,8 +83,12 @@ public static class FarmObstacleVisuals
         switch (hash % 4)
         {
             case 0:
-                var rock = Shape(root.transform, PrimitiveType.Sphere, new Vector3(0, .24f, 0), new Vector3(.62f, .46f, .53f), new Color(.46f, .46f, .42f));
-                rock.transform.localRotation = Quaternion.Euler(10, 0, 12);
+                // Use the imported scanned rock instead of the original sphere.
+                if (!CreateScannedRock(root.transform, rockPrefab))
+                {
+                    var rock = Shape(root.transform, PrimitiveType.Sphere, new Vector3(0, .24f, 0), new Vector3(.62f, .46f, .53f), new Color(.46f, .46f, .42f));
+                    rock.transform.localRotation = Quaternion.Euler(10, 0, 12);
+                }
                 break;
             case 1:
                 // A ring of dark low-poly tire segments with an open center.

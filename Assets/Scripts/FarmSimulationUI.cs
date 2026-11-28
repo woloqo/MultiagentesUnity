@@ -18,6 +18,7 @@ public class FarmSimulationUI : MonoBehaviour
     private string seedInput = "0";
     private bool qLearningEnabled = true;
     private bool stylesReady;
+    private bool mostrarMetricas = true;
 
     private GUIStyle panelStyle;
     private GUIStyle cardStyle;
@@ -62,14 +63,27 @@ public class FarmSimulationUI : MonoBehaviour
             Mathf.Min(Screen.width / 1280f, Screen.height / 720f),
             0.65f,
             1.35f);
+
+        // The dashboard can shrink to fit smaller Game windows.
+        // The episode configuration keeps its original scale.
+        if (!showingConfiguration && bridge.CurrentSnapshot != null)
+        {
+            scale = Mathf.Min(scale, 0.9f);
+            scale = Mathf.Min(scale, (Screen.width - 12f) / 530f);
+            scale = Mathf.Min(scale, (Screen.height - 12f) / 690f);
+            scale = Mathf.Max(0.25f, scale);
+        }
+
         GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
 
         if (showingConfiguration)
             DrawConfiguration(Screen.width / scale, Screen.height / scale);
         else if (bridge.CurrentSnapshot == null)
             DrawConnecting(Screen.width / scale, Screen.height / scale);
-        else
+        else if (mostrarMetricas)
             DrawDashboard();
+        else
+            DrawShowDashboard();
 
         GUI.matrix = previousMatrix;
     }
@@ -176,6 +190,13 @@ public class FarmSimulationUI : MonoBehaviour
             showingConfiguration = true;
     }
 
+    private void DrawShowDashboard()
+    {
+        if (GUI.Button(new Rect(18f, 18f, 180f, 36f),
+                "Mostrar métricas", buttonStyle))
+            mostrarMetricas = true;
+    }
+
     private void DrawDashboard()
     {
         FarmSnapshotData snapshot = bridge.CurrentSnapshot;
@@ -185,8 +206,16 @@ public class FarmSimulationUI : MonoBehaviour
         const float height = 652f;
         GUI.Box(new Rect(x, y, width, height), GUIContent.none, panelStyle);
 
-        GUI.Label(new Rect(x + 16f, y + 12f, 310f, 30f),
+        GUI.Label(new Rect(x + 16f, y + 12f, 250f, 30f),
             "Episodio Python", titleStyle);
+
+        if (GUI.Button(new Rect(x + width - 206f, y + 14f, 80f, 30f),
+                "Ocultar", buttonStyle))
+        {
+            mostrarMetricas = false;
+            return;
+        }
+
         if (GUI.Button(new Rect(x + width - 118f, y + 14f, 102f, 30f),
                 "Ajustes", buttonStyle))
         {
@@ -472,6 +501,10 @@ public class FarmSimulationUI : MonoBehaviour
         style.hover.background = MakeTexture(hoverColor);
         style.active.background = MakeTexture(activeColor);
         style.focused.background = MakeTexture(hoverColor);
+        style.onNormal.background = style.normal.background;
+        style.onHover.background = style.hover.background;
+        style.onActive.background = style.active.background;
+        style.focused.background = style.hover.background;
         style.onNormal.background = style.normal.background;
         style.onHover.background = style.hover.background;
         style.onActive.background = style.active.background;

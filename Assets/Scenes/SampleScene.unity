@@ -12684,7 +12684,7 @@ MonoBehaviour:
   tractor1: {fileID: 0}
   tractor2: {fileID: 0}
   tractor3: {fileID: 0}
-  obstaclePrefab: {fileID: 0}
+  obstaclePrefab: {fileID: 919132149155446097, guid: 9ce9f866c8ca46f4b91e30802e25d515, type: 3}
   plantedMaterial: {fileID: 0}
   headingOffsetY: -90
 --- !u!114 &257860284
